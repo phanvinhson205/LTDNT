@@ -1,0 +1,22 @@
+lib/
+├── main.dart                         # Điểm khởi chạy ứng dụng (Entry point)
+├── models/
+│   └── crypto_price.dart             # Lớp dữ liệu bất biến (symbol, price, changePercent, timestamp)
+├── services/
+│   └── crypto_mock_service.dart      # Future (tải giá ban đầu) + Stream (StreamController.broadcast, Timer) + dispose()
+├── transformers/
+│   └── price_transformer.dart        # StreamTransformer: lọc nhiễu (>20% -> addError), làm tròn 2 chữ số
+├── views/
+│   ├── home_screen.dart              # FutureBuilder: hiển thị giá khởi tạo, điều hướng sang Tracker
+│   └── tracker_screen.dart           # StreamBuilder + StreamSubscription (pause/resume, đếm lỗi), có dispose()
+└── widgets/
+    └── price_tile.dart               # Widget hiển thị 1 dòng giá (stateless)
+
+test/
+├── widget_test.dart                  # Widget test cho HomeScreen (thay test Counter mặc định)
+├── models/
+│   └── crypto_price_test.dart        # Test copyWith, toString
+├── transformers/
+│   └── price_transformer_test.dart   # Test lọc >20%, làm tròn, addError
+└── services/
+    └── crypto_mock_service_test.dart # Test Future, Stream, broadcast, dispose
