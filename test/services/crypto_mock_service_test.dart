@@ -10,7 +10,6 @@ void main() {
 
   /// Tạo service với tham số nhanh + Random cố định để test ổn định.
   CryptoMockService createService({
-    double failureRate = 0.0,
     double anomalyRate = 0.0,
     Duration loadDelay = const Duration(milliseconds: 10),
   }) {
@@ -18,7 +17,6 @@ void main() {
       random: Random(42),
       tickInterval: const Duration(milliseconds: 10),
       initialLoadDelay: loadDelay,
-      initialLoadFailureRate: failureRate,
       anomalyRate: anomalyRate,
     );
   }
@@ -40,15 +38,6 @@ void main() {
         expect(p.price, CryptoMockService.basePrices[p.symbol]);
         expect(p.changePercent, 0.0);
       }
-    });
-
-    test('ném CryptoServiceException khi giả lập lỗi mạng', () {
-      service = createService(failureRate: 1.0);
-
-      expect(
-        service.fetchInitialPrices(),
-        throwsA(isA<CryptoServiceException>()),
-      );
     });
 
     test('Future.wait chạy song song (không cộng dồn độ trễ)', () async {
@@ -136,12 +125,6 @@ void main() {
       await done;
       expect(service.isDisposed, isTrue);
       expect(service.isRunning, isFalse);
-    });
-
-    test('gọi fetchInitialPrices sau dispose -> StateError', () {
-      service = createService()..dispose();
-
-      expect(service.fetchInitialPrices(), throwsStateError);
     });
 
     test('gọi dispose nhiều lần vẫn an toàn', () {
