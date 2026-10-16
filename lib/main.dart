@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 
-import 'views/home_screen.dart';
+import 'views/tracker_screen.dart';
 
 void main() {
   runApp(const CryptoTrackerApp());
 }
 
-/// Widget gốc của ứng dụng Crypto Stream Tracker.
-///
-/// Thiết lập Material Design 3, bảng màu tài chính hiện đại (Indigo/Teal)
-/// và điều hướng tới màn hình khởi đầu [HomeScreen].
+/// Widget gốc của ứng dụng Crypto Stream Tracker (Chủ đề 02).
 class CryptoTrackerApp extends StatelessWidget {
   const CryptoTrackerApp({super.key});
 
@@ -21,7 +18,7 @@ class CryptoTrackerApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF1E3A8A), // Blue Navy
+          seedColor: const Color(0xFF1E3A8A),
           brightness: Brightness.light,
         ),
         scaffoldBackgroundColor: const Color(0xFFF8FAFC),
@@ -30,7 +27,7 @@ class CryptoTrackerApp extends StatelessWidget {
           elevation: 0,
         ),
       ),
-      home: const HomeScreen(),
+      home: const TrackerScreen(),
     );
   }
 }

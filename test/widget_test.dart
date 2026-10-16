@@ -1,112 +1,77 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:crypto_stream_tracker/services/crypto_mock_service.dart';
-import 'package:crypto_stream_tracker/views/home_screen.dart';
 import 'package:crypto_stream_tracker/views/tracker_screen.dart';
-import 'package:crypto_stream_tracker/widgets/price_tile.dart';
 
 void main() {
-  group('HomeScreen Widget Tests (FutureBuilder & Navigation)', () {
-    testWidgets('hiển thị trạng thái loading trước khi Future hoàn thành',
+  group('TrackerScreen Widget Tests (All-in-One Dashboard)', () {
+    testWidgets('hiển thị đầy đủ cả Module Future và Module Stream',
         (WidgetTester tester) async {
-      // Service với độ trễ giả lập 500ms
       final service = CryptoMockService(
-        initialLoadDelay: const Duration(milliseconds: 500),
-      );
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: HomeScreen(service: service),
-        ),
-      );
-
-      // Khi vừa khởi chạy: FutureBuilder ở trạng thái ConnectionState.waiting
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-      expect(find.text('Đang tải dữ liệu khởi tạo...'), findsOneWidget);
-
-      // Đợi hoàn tất Future để đóng luồng sạch sẽ
-      await tester.pumpAndSettle();
-      service.dispose();
-    });
-
-    testWidgets('hiển thị danh sách coin và điều hướng sang TrackerScreen thành công',
-        (WidgetTester tester) async {
-      // Service tải nhanh (10ms) và không có lỗi
-      final service = CryptoMockService(
+        random: Random(42),
         initialLoadDelay: const Duration(milliseconds: 10),
-        initialLoadFailureRate: 0.0,
+        tickInterval: const Duration(milliseconds: 100),
       );
 
       await tester.pumpWidget(
         MaterialApp(
-          home: HomeScreen(service: service),
+          home: TrackerScreen(service: service),
         ),
       );
 
-      // Chờ Future.wait hoàn thành
-      await tester.pumpAndSettle();
-
-      // Kiểm tra các thẻ PriceTile được hiển thị trên UI chính xác theo symbol
-      expect(
-        find.byWidgetPredicate(
-            (w) => w is PriceTile && w.price.symbol == 'BTC'),
-        findsOneWidget,
-      );
-      expect(
-        find.byWidgetPredicate(
-            (w) => w is PriceTile && w.price.symbol == 'ETH'),
-        findsOneWidget,
-      );
-      expect(
-        find.byWidgetPredicate(
-            (w) => w is PriceTile && w.price.symbol == 'SOL'),
-        findsOneWidget,
-      );
-      expect(
-        find.byWidgetPredicate(
-            (w) => w is PriceTile && w.price.symbol == 'BNB'),
-        findsOneWidget,
-      );
-
-      // Kiểm tra nút điều hướng
-      final navigateButton =
-          find.text('Mở Module Realtime Tracker (Stream)');
-      expect(navigateButton, findsOneWidget);
-
-      // Nhấn nút để chuyển màn hình sang TrackerScreen
-      await tester.tap(navigateButton);
+      // Chờ Future.wait và 1-2 tick của Stream
       await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 150));
 
-      // Xác minh đã điều hướng sang TrackerScreen
-      expect(find.byType(TrackerScreen), findsOneWidget);
-      expect(find.text('Realtime Stream Tracker'), findsOneWidget);
+      // Kiểm tra tiêu đề các Module
+      expect(
+        find.text('1. Module Future: Giá khởi tạo (Future.wait)'),
+        findsOneWidget,
+      );
+      expect(
+        find.text('2. Module Stream Reactive: Biến động giá Realtime'),
+        findsOneWidget,
+      );
 
+      // Kiểm tra thông báo hoàn thành của Future
+      expect(
+        find.text('✓ Future hoàn thành: Đã nạp thành công 4 đồng coin ban đầu.'),
+        findsOneWidget,
+      );
+
+      // Đóng service và thoát an toàn
       service.dispose();
+      await tester.pump();
     });
 
-    testWidgets('hiển thị giao diện báo lỗi và nút Thử lại khi Future thất bại',
+    testWidgets('nhấn nút Hủy luồng an toàn (Dispose) chuyển trạng thái Đã đóng',
         (WidgetTester tester) async {
-      // Cấu hình service luôn ném lỗi
       final service = CryptoMockService(
         initialLoadDelay: const Duration(milliseconds: 10),
-        initialLoadFailureRate: 1.0,
       );
 
       await tester.pumpWidget(
         MaterialApp(
-          home: HomeScreen(service: service),
+          home: TrackerScreen(service: service),
         ),
       );
 
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 50));
 
-      // Kiểm tra UI bắt được lỗi qua snapshot.hasError
-      expect(find.text('Không thể tải dữ liệu thị trường'), findsOneWidget);
-      expect(find.text('Thử lại (Retry Future)'), findsOneWidget);
+      // Nhấn nút Hủy luồng trên AppBar
+      final stopButton = find.byIcon(Icons.stop_circle_outlined);
+      expect(stopButton, findsOneWidget);
+      await tester.tap(stopButton);
+      await tester.pump();
+
+      // Kiểm tra trạng thái đã đóng an toàn
+      expect(find.textContaining('Đã đóng (Closed)'), findsOneWidget);
 
       service.dispose();
+      await tester.pump();
     });
   });
 }
