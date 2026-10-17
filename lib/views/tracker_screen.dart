@@ -11,12 +11,11 @@ import '../widgets/price_tile.dart';
 /// "Lập trình Bất đồng bộ với Future & Stream: Xây dựng Module Reactive thời gian thực"
 ///
 /// Bao gồm đầy đủ:
-/// 1. Event Loop & Microtask Queue (nút demo thứ tự ưu tiên trên AppBar)
-/// 2. Future & async/await qua FutureBuilder (tải giá mở cửa ban đầu)
-/// 3. Stream & StreamController.broadcast qua StreamBuilder (biến động realtime)
-/// 4. Toán tử biến đổi StreamTransformer (lọc nhiễu >20% qua sink.addError)
-/// 5. StreamSubscription (quản lý Pause/Resume)
-/// 6. Hủy luồng an toàn (Cancellation / Dispose) chống rò rỉ bộ nhớ
+/// 1. Future & async/await qua FutureBuilder (tải giá mở cửa ban đầu)
+/// 2. Stream & StreamController.broadcast qua StreamBuilder (biến động realtime)
+/// 3. Toán tử biến đổi StreamTransformer (lọc nhiễu >20% qua sink.addError)
+/// 4. StreamSubscription (quản lý Pause/Resume)
+/// 5. Hủy luồng an toàn (Cancellation / Dispose) chống rò rỉ bộ nhớ
 class TrackerScreen extends StatefulWidget {
   const TrackerScreen({super.key, this.service});
 
